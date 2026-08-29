@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Text, Boolean, Integer, DateTime, ForeignKey, String
+from sqlalchemy import JSON, Text, Boolean, Integer, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 
 
@@ -22,9 +22,9 @@ class Result(Base):
 
     # Core AI output
     summary: Mapped[str] = mapped_column(Text)
-    key_points: Mapped[list] = mapped_column(JSONB)
-    next_steps: Mapped[list] = mapped_column(JSONB)
-    comparison_flags: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+    key_points: Mapped[list] = mapped_column(JSON)
+    next_steps: Mapped[list] = mapped_column(JSON)
+    comparison_flags: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
 
     # Urgency
     urgency_flag: Mapped[bool] = mapped_column(Boolean, default=False)

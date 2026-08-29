@@ -50,21 +50,22 @@
   <style>
     @layer base { body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    [data-active-link="true"] { color: #2dd4bf !important; }
+    [data-active-link="true"] .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeInUp 0.35s ease-out forwards; }
     .fade-in-d1 { animation-delay: 0.05s; opacity: 0; }
     .fade-in-d2 { animation-delay: 0.1s; opacity: 0; }
     .fade-in-d3 { animation-delay: 0.15s; opacity: 0; }
-    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    .shimmer { background: linear-gradient(90deg, transparent 25%, rgba(45,212,191,0.08) 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-background font-body-md text-on-surface">
 
-  <!-- Top Bar -->
-  <header class="fixed top-0 w-full z-50 bg-navy-brand pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.1)]">
+  <!-- ═══════ TOP HEADER ═══════ -->
+  <header class="fixed top-0 w-full z-50 bg-navy-brand pt-safe shadow-lg">
     <div class="h-16 px-margin-mobile flex items-center justify-between">
       <div class="flex items-center gap-unit">
         <div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
@@ -72,336 +73,419 @@
         </div>
         <span class="font-headline-sm text-on-primary">ClearDoc</span>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="showView('history')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined">history</span>
-        </button>
-        <button onclick="showView('settings')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined">settings</span>
-        </button>
-      </div>
+      <button onclick="switchTab('settings')" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+      </button>
     </div>
   </header>
 
-  <main class="relative w-full pt-16 min-h-screen bg-navy-brand">
+  <main class="relative w-full pt-16 pb-20">
 
-    <!-- ═══════ EXPLAIN VIEW ═══════ -->
-    <div id="view-explain" class="view px-margin-mobile py-stack-lg max-w-lg mx-auto">
-      <!-- Welcome -->
-      <div class="text-center mb-stack-lg fade-in">
-        <h1 class="font-headline-md text-on-primary mb-2">Hi, <span id="userName">User</span> 👋</h1>
-        <p class="font-body-sm text-on-primary/60">Paste a document and get a plain-English explanation.</p>
+    <!-- ═══════ HOME TAB ═══════ -->
+    <div id="tab-home" class="tab-content">
+      <div class="px-margin-mobile pt-stack-sm pb-stack-lg">
+        <h1 class="font-headline-lg-mobile text-on-surface">Upload &amp; Simplify</h1>
+        <p class="font-body-md text-on-surface-variant mt-unit">Turn complex jargon into clear, everyday language.</p>
       </div>
 
-      <!-- Input Card -->
-      <div class="bg-surface-container-lowest rounded-2xl p-stack-lg shadow-2xl mb-stack-md fade-in fade-in-d1">
-        <textarea id="docInput" class="w-full min-h-[160px] p-4 rounded-xl bg-surface-container-low font-body-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all resize-none" placeholder="Paste a medical bill, legal notice, government form, or any document text here..."></textarea>
-
-        <div class="flex items-center gap-2 mt-3">
-          <select id="langSelect" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="zh">中文</option>
-            <option value="vi">Tiếng Việt</option>
-            <option value="ko">한국어</option>
-            <option value="ar">العربية</option>
-            <option value="fr">Français</option>
-          </select>
-          <button onclick="explainDocument()" id="explainBtn" class="h-10 px-5 rounded-lg bg-primary-container text-on-primary-container font-label-md flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-all active:scale-[0.97] shadow-sm">
-            <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
-            <span id="explainBtnText">Explain</span>
-          </button>
+      <!-- Text Input Area -->
+      <div class="px-margin-mobile mb-stack-lg">
+        <div class="w-full bg-surface-container rounded-xl p-6 shadow-sm relative">
+          <textarea id="docInput" class="w-full min-h-[140px] p-4 rounded-xl bg-surface-container-low font-body-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all resize-none" placeholder="Paste a medical bill, legal notice, government form, or any document text here..."></textarea>
+          <div id="fileName" class="hidden mt-2 px-3 py-2 bg-primary-container/10 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[16px]">description</span>
+            <span class="font-body-sm text-on-surface truncate flex-1" id="fileNameText"></span>
+            <button onclick="clearFile()" class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[16px]">close</span></button>
+          </div>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div id="loadingState" class="hidden bg-surface-container-lowest/10 rounded-2xl p-stack-lg text-center fade-in">
-        <div class="w-10 h-10 mx-auto mb-3 border-[3px] border-primary-container/30 border-t-primary-container rounded-full" style="animation: spin 0.8s linear infinite"></div>
-        <p class="font-body-sm text-on-primary/70">Understanding your document...</p>
-        <p class="font-body-sm text-on-primary/40 text-xs mt-1" id="loadingSubtext">Analyzing with AI</p>
-      </div>
-      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-
-      <!-- ═══ Screen 2 Result ═══ -->
-      <div id="resultArea" class="hidden">
-        <!-- Deadline Banner -->
-        <div id="deadlineBanner" class="bg-error-container text-on-error-container px-4 py-4 flex items-start gap-3 shadow-sm mb-stack-md rounded-xl fade-in">
-          <span class="material-symbols-outlined shrink-0 mt-0.5 text-error">warning</span>
-          <p class="font-body-md font-medium" id="deadlineText"></p>
-        </div>
-
-        <!-- What This Means -->
-        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] relative overflow-hidden group mb-stack-md fade-in fade-in-d1">
-          <div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-primary">lightbulb</span>
-            <h2 class="font-headline-sm text-on-surface">What this means</h2>
-          </div>
-          <p class="font-body-lg text-on-surface-variant leading-relaxed" id="meaningText"></p>
-        </section>
-
-        <!-- Key Points -->
-        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] mb-stack-md fade-in fade-in-d2">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined text-secondary">fact_check</span>
-            <h2 class="font-headline-sm text-on-surface">Key Points</h2>
-          </div>
-          <ul class="flex flex-col" id="keyPointsList"></ul>
-        </section>
-
-        <!-- What You Should Do -->
-        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] mb-stack-md fade-in fade-in-d3">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-primary">task_alt</span>
-              <h2 class="font-headline-sm text-on-surface">What you should do</h2>
-            </div>
-            <span class="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded-md" id="stepsCount"></span>
-          </div>
-          <div class="flex flex-col gap-3" id="checklist"></div>
-        </section>
-      </div>
-
-      <!-- Follow-up Box -->
-      <div id="followupBox" class="hidden mt-3 bg-surface-container-lowest rounded-xl p-4 shadow-lg fade-in">
-        <div class="flex gap-2">
-          <input id="followupInput" type="text" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="Ask a question about this document..." onkeydown="if(event.key==='Enter')sendFollowup()"/>
-          <button onclick="sendFollowup()" class="h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-md hover:bg-primary-fixed-dim transition-colors">Send</button>
-        </div>
-        <div id="followupAnswer" class="hidden mt-3 bg-green-50 border border-green-200 rounded-lg p-3 font-body-sm text-green-800 leading-relaxed"></div>
-      </div>
-
-      <!-- Fixed Bottom Bar -->
-      <div id="bottomBar" class="hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-md px-margin-mobile py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] z-40">
-        <div class="max-w-lg mx-auto flex gap-3">
-          <button onclick="saveDocument()" class="flex-1 h-12 flex items-center justify-center rounded-lg border-2 border-on-surface text-on-surface font-label-md transition-colors active:bg-surface-container">
-            Save to History
+      <!-- Language Chips -->
+      <div class="px-margin-mobile mb-stack-lg">
+        <h2 class="font-headline-sm text-on-surface mb-3">Simplify into:</h2>
+        <div class="flex overflow-x-auto gap-3 pb-2 -mx-margin-mobile px-margin-mobile snap-x hide-scrollbar" id="language-selector">
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-primary text-on-primary font-label-md shadow-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="en">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span> English
           </button>
-          <button onclick="explainAnother()" class="flex-1 h-12 flex items-center justify-center rounded-lg bg-primary-container text-on-surface font-label-md transition-transform active:scale-[0.98] shadow-sm">
-            Explain Another
-          </button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="hi">Hindi</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="kn">Kannada</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="mr">Marathi</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="ml">Malayalam</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn" data-lang="ur">Urdu</button>
+        </div>
+        <div class="mt-4 bg-secondary-container/30 p-4 rounded-xl flex items-start gap-3">
+          <span class="material-symbols-outlined text-primary mt-0.5">translate</span>
+          <p class="font-body-sm text-on-surface-variant">We can read documents in over 50 languages and provide a simplified summary in your selected language.</p>
         </div>
       </div>
 
       <!-- Quick Samples -->
-      <div class="mt-stack-md fade-in fade-in-d3">
-        <p class="font-label-sm text-on-primary/40 uppercase tracking-wider mb-2">Quick Samples</p>
-        <div class="flex gap-2 overflow-x-auto pb-2">
-          <button onclick="loadSample('medical')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">🏥 Medical Bill</button>
-          <button onclick="loadSample('legal')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">⚖️ Legal Notice</button>
-          <button onclick="loadSample('govt')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">🏛️ Govt Form</button>
+      <div class="px-margin-mobile mb-stack-lg">
+        <p class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Quick Samples</p>
+        <div class="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+          <button onclick="loadSample('medical')" class="shrink-0 px-4 py-2 rounded-xl bg-surface-container text-on-surface font-body-sm text-xs hover:bg-surface-container-high transition-colors">🏥 Medical Bill</button>
+          <button onclick="loadSample('legal')" class="shrink-0 px-4 py-2 rounded-xl bg-surface-container text-on-surface font-body-sm text-xs hover:bg-surface-container-high transition-colors">⚖️ Legal Notice</button>
+          <button onclick="loadSample('govt')" class="shrink-0 px-4 py-2 rounded-xl bg-surface-container text-on-surface font-body-sm text-xs hover:bg-surface-container-high transition-colors">🏛️ Govt Form</button>
         </div>
+      </div>
+
+      <div class="flex-grow"></div>
+
+      <!-- Simplify Button -->
+      <div class="px-margin-mobile mt-4 sticky bottom-20 z-10">
+        <button onclick="explainDocument()" id="explainBtn" class="w-full bg-primary-container text-on-primary-container py-4 rounded-xl font-label-md shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95 hover:bg-primary hover:text-on-primary">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span id="explainBtnText">Simplify Now</span>
+        </button>
       </div>
     </div>
 
-    <!-- ═══════ HISTORY VIEW ═══════ -->
-    <div id="view-history" class="view hidden px-margin-mobile py-stack-lg max-w-lg mx-auto">
-      <div class="flex items-center gap-3 mb-stack-lg fade-in">
-        <button onclick="showView('explain')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h2 class="font-headline-md text-on-primary">History</h2>
+    <!-- ═══════ LOADING STATE ═══════ -->
+    <div id="loadingState" class="hidden px-margin-mobile py-20 text-center">
+      <div class="w-12 h-12 mx-auto mb-4 border-[3px] border-primary-container/30 border-t-primary-container rounded-full" style="animation: spin 0.8s linear infinite"></div>
+      <p class="font-body-md text-on-surface">Understanding your document...</p>
+      <p class="font-body-sm text-on-surface-variant text-xs mt-1">This may take a few seconds</p>
+    </div>
+
+    <!-- ═══════ SCREEN 2 RESULT ═══════ -->
+    <div id="resultArea" class="hidden px-margin-mobile flex flex-col gap-stack-lg max-w-container-max-width mx-auto w-full">
+      <div id="deadlineBanner" class="bg-error-container text-on-error-container px-4 py-4 flex items-start gap-3 shadow-sm rounded-xl fade-in">
+        <span class="material-symbols-outlined shrink-0 mt-0.5 text-error">warning</span>
+        <p class="font-body-md font-medium" id="deadlineText"></p>
       </div>
-      <div id="historyList" class="space-y-3 fade-in fade-in-d1">
-        <p class="text-on-primary/40 text-center py-8 font-body-sm">Loading...</p>
+      <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] relative overflow-hidden group fade-in fade-in-d1">
+        <div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-primary">lightbulb</span>
+          <h2 class="font-headline-sm text-on-surface">What this means</h2>
+        </div>
+        <p class="font-body-lg text-on-surface-variant leading-relaxed" id="meaningText"></p>
+      </section>
+      <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] fade-in fade-in-d2">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="material-symbols-outlined text-secondary">fact_check</span>
+          <h2 class="font-headline-sm text-on-surface">Key Points</h2>
+        </div>
+        <ul class="flex flex-col" id="keyPointsList"></ul>
+      </section>
+      <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] fade-in fade-in-d3">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">task_alt</span>
+            <h2 class="font-headline-sm text-on-surface">What you should do</h2>
+          </div>
+          <span class="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded-md" id="stepsCount"></span>
+        </div>
+        <div class="flex flex-col gap-3" id="checklist"></div>
+      </section>
+      <div class="flex gap-3 pb-4">
+        <button onclick="saveDocument()" class="flex-1 h-12 flex items-center justify-center rounded-lg border-2 border-on-surface text-on-surface font-label-md transition-colors active:bg-surface-container">
+          Save to History
+        </button>
+        <button onclick="explainAnother()" class="flex-1 h-12 flex items-center justify-center rounded-lg bg-primary-container text-on-surface font-label-md transition-transform active:scale-[0.98] shadow-sm">
+          Explain Another
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════ HISTORY TAB ═══════ -->
+    <div id="tab-history" class="tab-content hidden px-margin-mobile py-stack-lg">
+      <h2 class="font-headline-md text-on-surface mb-stack-md">History</h2>
+      <div id="historyList" class="space-y-3">
+        <p class="text-on-surface-variant text-center py-12 font-body-sm">No saved documents yet.</p>
+      </div>
+    </div>
+
+    <!-- ═══════ UPLOAD TAB ═══════ -->
+    <div id="tab-upload" class="tab-content hidden">
+      <div class="px-margin-mobile pt-stack-sm pb-stack-lg">
+        <h1 class="font-headline-lg-mobile text-on-surface">Upload &amp; Simplify</h1>
+        <p class="font-body-md text-on-surface-variant mt-unit">Turn complex jargon into clear, everyday language.</p>
+      </div>
+      <div class="px-margin-mobile mb-stack-lg">
+        <div class="w-full bg-surface-container rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden group cursor-pointer transition-all active:scale-[0.98]" id="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="w-16 h-16 bg-primary-container/20 rounded-full flex items-center justify-center mb-4 relative">
+            <span class="material-symbols-outlined text-primary text-[32px] transform transition-transform group-hover:-translate-y-1">upload_file</span>
+            <div class="absolute inset-0 border-2 border-primary border-dashed rounded-full opacity-50" style="animation: spin 10s linear infinite"></div>
+          </div>
+          <h3 class="font-headline-sm text-on-surface mb-2">Tap to Upload or Scan</h3>
+          <p class="font-body-sm text-on-surface-variant max-w-[250px]">Upload a PDF, Word doc, or take a photo of a physical document.</p>
+          <div class="mt-6 flex gap-2">
+            <span class="px-3 py-1 bg-surface-container-high rounded-full font-label-sm text-on-surface-variant">PDF</span>
+            <span class="px-3 py-1 bg-surface-container-high rounded-full font-label-sm text-on-surface-variant">DOCX</span>
+            <span class="px-3 py-1 bg-surface-container-high rounded-full font-label-sm text-on-surface-variant">JPG</span>
+          </div>
+        </div>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.jpg,.jpeg,.png" onchange="handleFileUpload(this)"/>
+        <button onclick="openCamera()" class="mt-4 w-full flex items-center justify-center gap-2 px-5 py-3 bg-primary-container/20 text-primary rounded-xl font-label-md transition-all active:scale-95 hover:bg-primary-container/30">
+          <span class="material-symbols-outlined">photo_camera</span>
+          <span>Scan with Camera</span>
+        </button>
+        <input type="file" id="cameraInput" class="hidden" accept="image/*" capture="environment" onchange="handleFileUpload(this)"/>
+      </div>
+      <div class="px-margin-mobile mb-stack-lg">
+        <h2 class="font-headline-sm text-on-surface mb-3">Simplify into:</h2>
+        <div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar">
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-primary text-on-primary font-label-md shadow-md flex items-center gap-2 lang-btn" data-lang="en">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span> English
+          </button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md flex items-center gap-2 lang-btn" data-lang="hi">Hindi</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md flex items-center gap-2 lang-btn" data-lang="kn">Kannada</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md flex items-center gap-2 lang-btn" data-lang="mr">Marathi</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md flex items-center gap-2 lang-btn" data-lang="ml">Malayalam</button>
+          <button class="snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md flex items-center gap-2 lang-btn" data-lang="ur">Urdu</button>
+        </div>
+      </div>
+      <div class="flex-grow"></div>
+      <div class="px-margin-mobile mt-4 sticky bottom-20 z-10">
+        <button onclick="explainDocument()" class="w-full bg-primary-container text-on-primary-container py-4 rounded-xl font-label-md shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95 hover:bg-primary hover:text-on-primary">
+          <span class="material-symbols-outlined">auto_awesome</span> Simplify Now
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════ HELP TAB ═══════ -->
+    <div id="tab-help" class="tab-content hidden px-margin-mobile py-stack-lg">
+      <h2 class="font-headline-md text-on-surface mb-stack-md">Help</h2>
+      <div class="space-y-4">
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-headline-sm text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">upload_file</span> How to Upload</h3>
+          <p class="font-body-sm text-on-surface-variant">Tap the upload area on the Home or Upload tab to select a PDF, DOCX, or image file. You can also use the camera to scan physical documents.</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-headline-sm text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">translate</span> Languages</h3>
+          <p class="font-body-sm text-on-surface-variant">Select your preferred output language before simplifying. We support English, Hindi, Kannada, Marathi, Malayalam, Urdu, and many more.</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-headline-sm text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">history</span> History</h3>
+          <p class="font-body-sm text-on-surface-variant">Save simplified documents to your history for quick access later. Tap any saved item to view the full explanation.</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-headline-sm text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">task_alt</span> Checklist</h3>
+          <p class="font-body-sm text-on-surface-variant">After simplifying, follow the interactive checklist to complete each step. Check off items as you go — they'll be saved.</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-headline-sm text-on-surface mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-primary">shield</span> Privacy</h3>
+          <p class="font-body-sm text-on-surface-variant">Your documents are processed securely. We never share your data with third parties. You can delete your history at any time.</p>
+        </div>
       </div>
     </div>
 
     <!-- ═══════ SETTINGS VIEW ═══════ -->
-    <div id="view-settings" class="view hidden px-margin-mobile py-stack-lg max-w-lg mx-auto">
-      <div class="flex items-center gap-3 mb-stack-lg fade-in">
-        <button onclick="showView('explain')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10">
+    <div id="tab-settings" class="tab-content hidden px-margin-mobile py-stack-lg">
+      <div class="flex items-center gap-3 mb-stack-lg">
+        <button onclick="switchTab('home')" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-lg hover:bg-surface-container">
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
-        <h2 class="font-headline-md text-on-primary">Settings</h2>
+        <h2 class="font-headline-md text-on-surface">Settings</h2>
       </div>
-
-      <div class="space-y-4 fade-in fade-in-d1">
-        <!-- Profile -->
-        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
-          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Profile</h3>
-          <div class="space-y-2">
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined text-on-primary/60">person</span>
-              <div>
-                <p class="font-body-sm text-on-primary" id="settingsName">—</p>
-                <p class="font-body-sm text-on-primary/50 text-xs" id="settingsEmail">—</p>
-              </div>
+      <div class="space-y-4">
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Profile</h3>
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            <div>
+              <p class="font-body-sm text-on-surface" id="settingsName">—</p>
+              <p class="font-body-sm text-on-surface-variant text-xs" id="settingsEmail">—</p>
             </div>
           </div>
         </div>
-
-        <!-- Language -->
-        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
-          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Language</h3>
-          <select id="settingsLang" onchange="saveSettings()" class="w-full h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="zh">中文</option>
-            <option value="vi">Tiếng Việt</option>
-            <option value="ko">한국어</option>
-            <option value="ar">العربية</option>
-          </select>
-        </div>
-
-        <!-- Backend Status -->
-        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
-          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Backend Status</h3>
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+          <h3 class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Backend Status</h3>
           <div class="flex items-center gap-2">
-            <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-400 pulse-dot"></span>
-            <span id="statusText" class="font-body-sm text-on-primary/70">Checking...</span>
+            <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+            <span id="statusText" class="font-body-sm text-on-surface-variant">Checking...</span>
           </div>
         </div>
-
-        <!-- Sign Out -->
-        <button onclick="signOut()" class="w-full h-12 rounded-xl bg-red-500/20 border border-red-400/30 text-red-300 font-label-md flex items-center justify-center gap-2 hover:bg-red-500/30 transition-colors mt-4">
+        <button onclick="signOut()" class="w-full h-12 rounded-xl bg-red-500/10 border border-red-300/50 text-red-600 font-label-md flex items-center justify-center gap-2 hover:bg-red-500/20 transition-colors mt-4">
           <span class="material-symbols-outlined text-[18px]">logout</span> Sign Out
         </button>
       </div>
     </div>
+
   </main>
+
+  <!-- ═══════ BOTTOM NAVIGATION ═══════ -->
+  <nav class="fixed bottom-0 w-full z-50 bg-navy-brand pb-safe border-t border-on-primary/10">
+    <div class="h-16 flex items-center justify-around">
+      <button onclick="switchTab('home')" class="nav-link flex flex-col items-center gap-1 text-on-primary/60 transition-colors" data-tab="home" data-active-link="true">
+        <span class="material-symbols-outlined">home</span>
+        <span class="text-label-sm">Home</span>
+      </button>
+      <button onclick="switchTab('history')" class="nav-link flex flex-col items-center gap-1 text-on-primary/60 transition-colors" data-tab="history">
+        <span class="material-symbols-outlined">history</span>
+        <span class="text-label-sm">History</span>
+      </button>
+      <button onclick="switchTab('upload')" class="nav-link flex flex-col items-center gap-1 text-on-primary/60 transition-colors" data-tab="upload">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span class="text-label-sm">Upload</span>
+      </button>
+      <button onclick="switchTab('help')" class="nav-link flex flex-col items-center gap-1 text-on-primary/60 transition-colors" data-tab="help">
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-label-sm">Help</span>
+      </button>
+    </div>
+  </nav>
 
   <script>
     // ── State ────────────────────────────────────────────────
     let currentUser = null;
     let currentDocId = null;
     let currentResult = null;
+    let selectedLang = "en";
+    let uploadedFile = null;
 
     const SAMPLES = {
-      medical: `VALLEY MEDICAL CENTER
-Account Statement
-
-Patient: Jane Doe
-Account #: 8847-2901
-Date of Service: March 15, 2025
-
-CHARGES:
-  Office Visit (Level 3)          $285.00
-  Blood Work (CBC Panel)          $142.00
-  X-Ray (Chest, 2 views)         $310.00
-  Prescription (Amoxicillin)       $28.50
-
-TOTAL CHARGES:                    $765.50
-INSURANCE PAID (Blue Cross):     -$520.00
-YOUR BALANCE DUE:                 $245.50
-
-PAYMENT DUE: April 15, 2025
-
-Late payments may result in a $25.00 fee and could be 
-sent to collections after 90 days. If you are unable 
-to pay in full, please contact our billing department 
-at (555) 234-5678 to discuss payment plan options.
-
-Financial assistance is available for qualifying patients. 
-Please ask at the front desk for an application.`,
-
-      legal: `NOTICE OF LEASE VIOLATION
-From: Oakwood Property Management
-To: Tenant, Unit 4B
-Date: March 20, 2025
-
-Dear Tenant,
-
-Our records indicate that your rent payment for March 2025 
-was not received by the due date of March 1, 2025.
-
-Per Section 4.2 of your lease agreement, rent is due on the 
-1st of each month. A late fee of $75.00 has been applied, 
-bringing your total amount due to $1,325.00.
-
-If payment is not received within 5 days (by March 25, 2025), 
-we will be required to initiate formal eviction proceedings 
-under California Civil Code Section 1161.
-
-This is your FIRST written notice. Two additional notices 
-will be issued before any legal action is taken.`,
-
-      govt: `STATE OF CALIFORNIA — DEPARTMENT OF MOTOR VEHICLES
-NOTICE OF DRIVER LICENSE SUSPENSION
-
-RE: License Holder — John Smith
-License #: D1234567
-Notice Date: March 10, 2025
-
-Dear Mr. Smith,
-
-This notice informs you that your California driver license 
-will be SUSPENDED effective April 10, 2025, for the 
-following reason:
-
-  Reason: Failure to maintain financial responsibility 
-  (SR-22) as required by California Vehicle Code §16020
-
-Your license will remain suspended until you:
-  1. File an SR-22 certificate with the DMV
-  2. Pay the reinstatement fee of $125.00
-  3. Maintain continuous SR-22 coverage for 3 years`
+      medical: `VALLEY MEDICAL CENTER\nAccount Statement\n\nPatient: Jane Doe\nAccount #: 8847-2901\nDate of Service: March 15, 2025\n\nCHARGES:\n  Office Visit (Level 3)          $285.00\n  Blood Work (CBC Panel)          $142.00\n  X-Ray (Chest, 2 views)         $310.00\n  Prescription (Amoxicillin)       $28.50\n\nTOTAL CHARGES:                    $765.50\nINSURANCE PAID (Blue Cross):     -$520.00\nYOUR BALANCE DUE:                 $245.50\n\nPAYMENT DUE: April 15, 2025\n\nLate payments may result in a $25.00 fee.`,
+      legal: `NOTICE OF LEASE VIOLATION\nFrom: Oakwood Property Management\nTo: Tenant, Unit 4B\nDate: March 20, 2025\n\nDear Tenant,\n\nOur records indicate that your rent payment for March 2025 was not received by the due date of March 1, 2025.\n\nPer Section 4.2 of your lease agreement, rent is due on the 1st of each month. A late fee of $75.00 has been applied, bringing your total amount due to $1,325.00.\n\nIf payment is not received within 5 days (by March 25, 2025), we will be required to initiate formal eviction proceedings.\n\nThis is your FIRST written notice.`,
+      govt: `STATE OF CALIFORNIA — DMV\nNOTICE OF DRIVER LICENSE SUSPENSION\n\nRE: License Holder — John Smith\nLicense #: D1234567\nNotice Date: March 10, 2025\n\nDear Mr. Smith,\n\nYour California driver license will be SUSPENDED effective April 10, 2025.\n\nReason: Failure to maintain financial responsibility (SR-22)\n\nTo avoid suspension:\n  1. File an SR-22 certificate\n  2. Pay reinstatement fee of $125.00\n  3. Maintain SR-22 for 3 years`
     };
 
     // ── Init ─────────────────────────────────────────────────
     function init() {
       const raw = localStorage.getItem("cleardoc_user");
       if (!raw) { window.location.href = "/"; return; }
-
       currentUser = JSON.parse(raw);
-      document.getElementById("userName").textContent = localStorage.getItem("cleardoc_name") || "User";
       document.getElementById("settingsName").textContent = localStorage.getItem("cleardoc_name") || "—";
       document.getElementById("settingsEmail").textContent = localStorage.getItem("cleardoc_email") || "—";
-
-      const lang = localStorage.getItem("cleardoc_lang") || "en";
-      document.getElementById("langSelect").value = lang;
-      document.getElementById("settingsLang").value = lang;
-
       checkHealth();
-
-      // Handle hash navigation (e.g. from result.html back to #history)
-      if (window.location.hash === "#history") showView("history");
+      initLangChips();
     }
 
-    // ── Views ────────────────────────────────────────────────
-    function showView(name) {
-      document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
-      const el = document.getElementById("view-" + name);
-      if (el) { el.classList.remove("hidden"); }
-      // Hide result area and bottom bar when switching views
-      if (name !== "explain") {
-        document.getElementById("resultArea").classList.add("hidden");
-        document.getElementById("bottomBar").classList.add("hidden");
-        document.getElementById("followupBox").classList.add("hidden");
-        document.getElementById("followupAnswer").classList.add("hidden");
+    // ── Tab Switching ────────────────────────────────────────
+    function switchTab(name) {
+      // Hide all tab content
+      document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
+      // Reset all nav links
+      document.querySelectorAll(".nav-link").forEach(n => {
+        n.removeAttribute("data-active-link");
+        n.classList.remove("text-primary-container");
+        n.classList.add("text-on-primary/60");
+      });
+      // Hide result when switching away
+      document.getElementById("resultArea").classList.add("hidden");
+      document.getElementById("loadingState").classList.add("hidden");
+      // Show settings or the selected tab
+      if (name === "settings") {
+        document.getElementById("tab-settings").classList.remove("hidden");
+        return;
+      }
+      const el = document.getElementById("tab-" + name);
+      if (el) el.classList.remove("hidden");
+      // Highlight active nav
+      const navBtn = document.querySelector(`.nav-link[data-tab="${name}"]`);
+      if (navBtn) {
+        navBtn.setAttribute("data-active-link", "true");
+        navBtn.classList.add("text-primary-container");
+        navBtn.classList.remove("text-on-primary/60");
       }
       if (name === "history") loadHistory();
+      window.scrollTo(0, 0);
+    }
+
+    // ── Language Chips ───────────────────────────────────────
+    function initLangChips() {
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const lang = btn.dataset.lang;
+          selectedLang = lang;
+          document.querySelectorAll(".lang-btn").forEach(b => {
+            b.className = "snap-start shrink-0 px-5 py-3 rounded-xl bg-surface-container text-on-surface-variant font-label-md transition-transform active:scale-95 flex items-center gap-2 lang-btn";
+            b.dataset.lang = lang;
+            const icon = b.querySelector(".material-symbols-outlined");
+            if (icon && icon.textContent === "check_circle") icon.remove();
+          });
+          btn.className = "snap-start shrink-0 px-5 py-3 rounded-xl bg-primary text-on-primary font-label-md shadow-md transition-transform active:scale-95 flex items-center gap-2 lang-btn";
+          btn.dataset.lang = lang;
+          const iconSpan = document.createElement("span");
+          iconSpan.className = "material-symbols-outlined text-[18px]";
+          iconSpan.textContent = "check_circle";
+          btn.prepend(iconSpan);
+          localStorage.setItem("cleardoc_lang", lang);
+        });
+      });
+    }
+
+    // ── File Upload ──────────────────────────────────────────
+    function handleFileUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      uploadedFile = file;
+
+      const isTextLike = file.type.startsWith("text/") || /\.(txt|md|csv|json|html|xml)$/i.test(file.name);
+      if (isTextLike) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById("docInput").value = e.target.result.substring(0, 10000);
+          document.getElementById("fileName").classList.remove("hidden");
+          document.getElementById("fileNameText").textContent = file.name;
+          switchTab("home");
+        };
+        reader.readAsText(file);
+      } else {
+        document.getElementById("docInput").value = "";
+        document.getElementById("fileName").classList.remove("hidden");
+        document.getElementById("fileNameText").textContent = file.name;
+        switchTab("home");
+      }
+      input.value = "";
+    }
+
+    function openCamera() {
+      document.getElementById("cameraInput").click();
+    }
+
+    function clearFile() {
+      uploadedFile = null;
+      document.getElementById("fileName").classList.add("hidden");
+      document.getElementById("docInput").value = "";
     }
 
     // ── Explain ──────────────────────────────────────────────
     async function explainDocument() {
       const text = document.getElementById("docInput").value.trim();
-      if (!text) return;
-
-      const lang = document.getElementById("langSelect").value;
-      localStorage.setItem("cleardoc_lang", lang);
+      if (!text && !uploadedFile) return;
 
       document.getElementById("loadingState").classList.remove("hidden");
       document.getElementById("resultArea").classList.add("hidden");
-      document.getElementById("bottomBar").classList.add("hidden");
       document.getElementById("explainBtn").disabled = true;
 
       try {
-        const res = await fetch("/api/explain", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, language: lang, user_id: currentUser.device_id })
-        });
-        const data = await res.json();
+        let response;
+        if (uploadedFile) {
+          const formData = new FormData();
+          formData.append("text", text || "");
+          formData.append("language", selectedLang);
+          formData.append("user_id", currentUser.device_id);
+          formData.append("file", uploadedFile, uploadedFile.name);
 
-        if (data.error) { alert(data.error); return; }
+          response = await fetch("http://localhost:8000/explain", {
+            method: "POST",
+            body: formData,
+          });
+        } else {
+          response = await fetch("/api/explain", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, language: selectedLang, user_id: currentUser.device_id })
+          });
+        }
 
+        const data = await response.json();
+        if (!response.ok || data.error) {
+          throw new Error(data.error || `Request failed (${response.status})`);
+        }
         currentResult = data;
         currentDocId = data.document_id;
         renderResult(data);
       } catch (err) {
-        alert("Error connecting to server. Please try again.");
-        document.getElementById("loadingState").classList.add("hidden");
+        console.error(err);
+        if (uploadedFile && text) {
+          alert("Your uploaded file was received, but the backend is not available. Please start the API server on port 8000.");
+        } else {
+          alert("Error connecting to server.");
+        }
       } finally {
         document.getElementById("loadingState").classList.add("hidden");
         document.getElementById("explainBtn").disabled = false;
@@ -409,7 +493,6 @@ Your license will remain suspended until you:
     }
 
     function renderResult(data) {
-      // Deadline banner
       if (data.urgency_flag && data.urgency_message) {
         document.getElementById("deadlineBanner").classList.remove("hidden");
         document.getElementById("deadlineText").textContent = data.urgency_message;
@@ -420,12 +503,9 @@ Your license will remain suspended until you:
         document.getElementById("deadlineBanner").classList.add("hidden");
       }
 
-      // What this means
       document.getElementById("meaningText").textContent = data.meaning || "";
 
-      // Key Points
-      const kpList = document.getElementById("keyPointsList");
-      kpList.innerHTML = (data.key_points || []).map(kp =>
+      document.getElementById("keyPointsList").innerHTML = (data.key_points || []).map(kp =>
         `<li class="flex items-start gap-3 py-3 border-b border-surface-container-high last:border-0 last:pb-0">
           <div class="w-2 h-2 rounded-full bg-primary-container mt-2 shrink-0"></div>
           <div>
@@ -435,11 +515,9 @@ Your license will remain suspended until you:
         </li>`
       ).join("");
 
-      // Steps checklist
       const steps = data.steps || [];
       document.getElementById("stepsCount").textContent = steps.length + " Steps";
-      const cl = document.getElementById("checklist");
-      cl.innerHTML = steps.map((step, i) =>
+      document.getElementById("checklist").innerHTML = steps.map(step =>
         `<label class="flex items-start gap-4 p-4 rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer group">
           <div class="relative flex items-center justify-center w-6 h-6 mt-0.5 rounded border-2 border-outline-variant group-hover:border-primary transition-all">
             <input class="absolute opacity-0 w-full h-full cursor-pointer" onchange="toggleCheck(this)" type="checkbox"/>
@@ -452,169 +530,68 @@ Your license will remain suspended until you:
         </label>`
       ).join("");
 
-      // Show result area and bottom bar
+      // Hide home tab, show result
+      document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
       document.getElementById("resultArea").classList.remove("hidden");
-      document.getElementById("bottomBar").classList.remove("hidden");
-      document.getElementById("followupBox").classList.add("hidden");
-      document.getElementById("followupAnswer").classList.add("hidden");
-
       setTimeout(() => document.getElementById("deadlineBanner").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     }
 
     function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
-    // ── Checklist Toggle with Particle Burst ─────────────────
+    // ── Checklist ────────────────────────────────────────────
     function toggleCheck(checkbox) {
       const icon = checkbox.nextElementSibling;
-      const textContainer = checkbox.closest('label').querySelector('.flex-1');
-      const title = textContainer.querySelector('.font-label-md');
-      const desc = textContainer.querySelector('.font-body-sm');
-
+      const tc = checkbox.closest("label").querySelector(".flex-1");
+      const title = tc.querySelector(".font-label-md");
+      const desc = tc.querySelector(".font-body-sm");
       if (checkbox.checked) {
-        icon.classList.remove('opacity-0');
-        icon.parentElement.classList.add('bg-primary', 'border-primary');
-        icon.parentElement.classList.remove('border-outline-variant', 'group-hover:border-primary');
-        title.classList.add('line-through', 'text-on-surface-variant');
-        desc.classList.add('opacity-50');
-      } else {
-        icon.classList.add('opacity-0');
-        icon.parentElement.classList.remove('bg-primary', 'border-primary');
-        icon.parentElement.classList.add('border-outline-variant', 'group-hover:border-primary');
-        title.classList.remove('line-through', 'text-on-surface-variant');
-        desc.classList.remove('opacity-50');
-      }
-
-      if (checkbox.checked) {
+        icon.classList.remove("opacity-0");
+        icon.parentElement.classList.add("bg-primary", "border-primary");
+        icon.parentElement.classList.remove("border-outline-variant", "group-hover:border-primary");
+        title.classList.add("line-through", "text-on-surface-variant");
+        desc.classList.add("opacity-50");
         const rect = checkbox.parentElement.getBoundingClientRect();
         createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      } else {
+        icon.classList.add("opacity-0");
+        icon.parentElement.classList.remove("bg-primary", "border-primary");
+        icon.parentElement.classList.add("border-outline-variant", "group-hover:border-primary");
+        title.classList.remove("line-through", "text-on-surface-variant");
+        desc.classList.remove("opacity-50");
       }
     }
 
     function createBurst(x, y) {
       for (let i = 0; i < 5; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'absolute w-2 h-2 bg-primary rounded-full pointer-events-none z-50';
-        document.body.appendChild(particle);
-
-        const angle = Math.random() * Math.PI * 2;
-        const velocity = 2 + Math.random() * 2;
-        const tx = Math.cos(angle) * velocity * 15;
-        const ty = Math.sin(angle) * velocity * 15;
-
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-
-        particle.animate([
-          { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-          { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
-        ], {
-          duration: 400 + Math.random() * 200,
-          easing: 'cubic-bezier(0, .9, .57, 1)'
-        }).onfinish = () => particle.remove();
+        const p = document.createElement("div");
+        p.className = "absolute w-2 h-2 bg-primary rounded-full pointer-events-none z-50";
+        document.body.appendChild(p);
+        const a = Math.random() * Math.PI * 2, v = 2 + Math.random() * 2;
+        p.style.left = x + "px"; p.style.top = y + "px";
+        p.animate([
+          { transform: "translate(-50%,-50%) scale(1)", opacity: 1 },
+          { transform: `translate(calc(-50%+${Math.cos(a)*v*15}px),calc(-50%+${Math.sin(a)*v*15}px)) scale(0)`, opacity: 0 }
+        ], { duration: 400 + Math.random() * 200, easing: "cubic-bezier(0,.9,.57,1)" }).onfinish = () => p.remove();
       }
     }
 
-    // ── Explain Another ──────────────────────────────────────
+    // ── Actions ──────────────────────────────────────────────
     function explainAnother() {
       document.getElementById("resultArea").classList.add("hidden");
-      document.getElementById("bottomBar").classList.add("hidden");
-      document.getElementById("followupBox").classList.add("hidden");
-      document.getElementById("followupAnswer").classList.add("hidden");
+      switchTab("home");
       document.getElementById("docInput").value = "";
       document.getElementById("docInput").focus();
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // ── Follow-up ────────────────────────────────────────────
-    function toggleFollowup() {
-      const box = document.getElementById("followupBox");
-      box.classList.toggle("hidden");
-      if (!box.classList.contains("hidden")) document.getElementById("followupInput").focus();
-    }
-
-    async function sendFollowup() {
-      const input = document.getElementById("followupInput");
-      const q = input.value.trim();
-      if (!q) return;
-
-      const answerEl = document.getElementById("followupAnswer");
-      answerEl.classList.remove("hidden");
-      answerEl.textContent = "Thinking...";
-      answerEl.className = "mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3 font-body-sm text-blue-800 leading-relaxed";
-
-      try {
-        const res = await fetch("/api/followup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ document_id: currentDocId, question: q, language: document.getElementById("langSelect").value })
-        });
-        const data = await res.json();
-        answerEl.textContent = data.answer;
-        answerEl.className = "mt-3 bg-green-50 border border-green-200 rounded-lg p-3 font-body-sm text-green-800 leading-relaxed";
-      } catch (err) {
-        answerEl.textContent = "Could not get answer. Try again.";
-        answerEl.className = "mt-3 bg-red-50 border border-red-200 rounded-lg p-3 font-body-sm text-red-800 leading-relaxed";
-      }
-
-      input.value = "";
-    }
-
-    // ── Save ─────────────────────────────────────────────────
     async function saveDocument() {
       if (!currentDocId) return;
       try {
-        await fetch("/api/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ document_id: currentDocId })
-        });
+        await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ document_id: currentDocId }) });
         const btn = event.target.closest("button");
-        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span> Saved';
-        btn.classList.add("bg-green-500/20", "text-green-300");
-        setTimeout(() => {
-          btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">bookmark_add</span> Save';
-          btn.classList.remove("bg-green-500/20", "text-green-300");
-        }, 2000);
+        btn.textContent = "✓ Saved";
+        btn.classList.add("bg-green-500/20", "text-green-600");
+        setTimeout(() => { btn.textContent = "Save to History"; btn.classList.remove("bg-green-500/20", "text-green-600"); }, 2000);
       } catch (err) {}
-    }
-
-    // ── History ──────────────────────────────────────────────
-    async function loadHistory() {
-      const list = document.getElementById("historyList");
-      try {
-        const res = await fetch(`/api/history/${currentUser.device_id}?limit=20`);
-        const items = await res.json();
-
-        if (items.length === 0) {
-          list.innerHTML = '<p class="text-on-primary/40 text-center py-12 font-body-sm">No saved documents yet.<br/>Explain a document and tap Save.</p>';
-          return;
-        }
-
-        list.innerHTML = items.map(d => `
-          <a href="/result.html?id=${d.id}" class="block bg-surface-container-lowest/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-medium text-primary-container uppercase">${(d.doc_type || 'other').replace(/_/g, ' ')}</span>
-              ${d.urgency_flag ? '<span class="text-xs">⚠️</span>' : ''}
-            </div>
-            <p class="font-body-sm text-on-primary/80 line-clamp-2">${esc(d.summary || '')}</p>
-            <p class="text-xs text-on-primary/40 mt-1">${d.created_at || ''}</p>
-          </a>
-        `).join("");
-      } catch (err) {
-        list.innerHTML = '<p class="text-red-300 text-center py-8 font-body-sm">Could not load history.</p>';
-      }
-    }
-
-    async function viewDocument(docId) {
-      try {
-        const res = await fetch(`/api/document/${docId}`);
-        const data = await res.json();
-        currentDocId = docId;
-        currentResult = data;
-        document.getElementById("docInput").value = data.original_text || "";
-        showView("explain");
-        renderResult(data);
-      } catch (err) { console.error(err); }
     }
 
     // ── Samples ──────────────────────────────────────────────
@@ -623,34 +600,61 @@ Your license will remain suspended until you:
       document.getElementById("docInput").focus();
     }
 
-    // ── Settings ─────────────────────────────────────────────
-    function saveSettings() {
-      localStorage.setItem("cleardoc_lang", document.getElementById("settingsLang").value);
-      document.getElementById("langSelect").value = document.getElementById("settingsLang").value;
+    // ── History ──────────────────────────────────────────────
+    async function loadHistory() {
+      const list = document.getElementById("historyList");
+      try {
+        const res = await fetch(`/api/history/${currentUser.device_id}?limit=20`);
+        const items = await res.json();
+        if (items.length === 0) {
+          list.innerHTML = '<p class="text-on-surface-variant text-center py-12 font-body-sm">No saved documents yet.<br/>Explain a document and tap Save.</p>';
+          return;
+        }
+        list.innerHTML = items.map(d =>
+          `<a href="/result.html?id=${d.id}" class="block bg-surface-container-lowest rounded-xl p-4 shadow-sm hover:bg-surface-container-low transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-medium text-primary uppercase">${(d.doc_type || "other").replace(/_/g, " ")}</span>
+              ${d.urgency_flag ? '<span class="text-xs">⚠️</span>' : ""}
+            </div>
+            <p class="font-body-sm text-on-surface line-clamp-2">${esc(d.meaning || d.summary || "")}</p>
+            <p class="text-xs text-on-surface-variant mt-1">${d.created_at || ""}</p>
+          </a>`
+        ).join("");
+      } catch (err) {
+        list.innerHTML = '<p class="text-red-500 text-center py-8 font-body-sm">Could not load history.</p>';
+      }
     }
 
+    // ── Settings ─────────────────────────────────────────────
     function signOut() {
-      if (!confirm("Sign out? You can sign in again with the same email.")) return;
+      if (!confirm("Sign out?")) return;
       localStorage.removeItem("cleardoc_user");
       localStorage.removeItem("cleardoc_name");
       localStorage.removeItem("cleardoc_email");
       window.location.href = "/";
     }
 
-    // ── Health ───────────────────────────────────────────────
     async function checkHealth() {
       try {
         const res = await fetch("/api/health");
         const data = await res.json();
-        document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-green-400 pulse-dot";
-        document.getElementById("statusText").textContent = "Connected" + (data.services?.anthropic === "demo-mode" ? " (Demo Mode — add ANTHROPIC_API_KEY for real AI)" : "");
+        document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-green-400";
+        document.getElementById("statusText").textContent = "Connected" + (data.services?.anthropic === "demo-mode" ? " (Demo Mode)" : "");
       } catch (err) {
         document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-red-400";
         document.getElementById("statusText").textContent = "Offline";
       }
     }
 
-    // ── Start ────────────────────────────────────────────────
+    // Nav button click delegation
+    document.querySelector('nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('.nav-link');
+      if (btn) {
+        const tab = btn.dataset.tab;
+        if (tab) switchTab(tab);
+      }
+    });
+
     init();
   </script>
 </body>

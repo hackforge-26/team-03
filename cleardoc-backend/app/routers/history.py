@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
@@ -73,11 +75,20 @@ async def get_history(
     return history
 
 
+def _parse_document_uuid(document_id: str) -> uuid.UUID:
+    try:
+        return uuid.UUID(document_id)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=404, detail="Document not found")
+
+
 @router.get("/{document_id}")
 async def get_history_item(
     document_id: str,
     db: AsyncSession = Depends(get_db),
 ):
+    document_uuid = _parse_document_uuid(document_id)
+
     # Check cache first
     cached = await cache_get(make_result_cache_key(document_id))
     if cached:
@@ -86,7 +97,7 @@ async def get_history_item(
     stmt = (
         select(Document, Result)
         .join(Result, Result.document_id == Document.id)
-        .where(Document.id == document_id)
+        .where(Document.id == document_uuid)
     )
     row = await db.execute(stmt)
     pair = row.first()
@@ -114,7 +125,12 @@ async def save_to_history(data: dict, db: AsyncSession = Depends(get_db)):
     document_id = data.get("document_id")
     user_id = data.get("user_id")
 
-    stmt = select(Document).where(Document.id == document_id)
+    if not document_id:
+        raise HTTPException(status_code=400, detail="Document ID is required")
+
+    document_uuid = _parse_document_uuid(str(document_id))
+
+    stmt = select(Document).where(Document.id == document_uuid)
     result = await db.execute(stmt)
     document = result.scalar_one_or_none()
 
@@ -136,7 +152,9 @@ async def delete_history_item(
     user_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = delete(Document).where(Document.id == document_id)
+    document_uuid = _parse_document_uuid(document_id)
+
+    stmt = delete(Document).where(Document.id == document_uuid)
     await db.execute(stmt)
     await db.commit()
 

@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.cache import redis_client
+from app.database import get_db
 
 router = APIRouter(tags=["health"])
 
@@ -11,7 +12,6 @@ router = APIRouter(tags=["health"])
 async def health_check(db: AsyncSession = Depends(get_db)):
     status = {"status": "ok", "services": {}}
 
-    # Check PostgreSQL
     try:
         await db.execute(text("SELECT 1"))
         status["services"]["postgresql"] = "ok"
@@ -19,8 +19,9 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         status["services"]["postgresql"] = f"error: {str(e)}"
         status["status"] = "degraded"
 
-    # Check Redis
     try:
+        if redis_client is None:
+            raise RuntimeError("Redis not initialized")
         await redis_client.ping()
         status["services"]["redis"] = "ok"
     except Exception as e:
