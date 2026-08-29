@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>ClearDoc</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#dadad9", "on-primary-fixed": "#00201c", "error": "#ba1a1a",
+            "inverse-on-surface": "#f1f0f0", "on-error": "#ffffff", "on-secondary-container": "#576378",
+            "surface-bright": "#faf9f8", "inverse-primary": "#3cddc7", "secondary-fixed": "#d7e3fc",
+            "on-surface-variant": "#3c4a46", "surface-container-highest": "#e3e2e1", "on-surface": "#1a1c1c",
+            "primary-fixed-dim": "#3cddc7", "on-tertiary-container": "#744000", "tertiary-fixed": "#ffdcc0",
+            "secondary-container": "#d4e0f9", "on-tertiary-fixed-variant": "#6b3b00", "secondary": "#535f74",
+            "on-secondary-fixed-variant": "#3c475b", "inverse-surface": "#2f3130", "tertiary": "#8d4f00",
+            "surface-tint": "#006b5f", "surface-container-low": "#f4f3f2", "secondary-fixed-dim": "#bbc7df",
+            "on-primary-fixed-variant": "#005047", "primary": "#006b5f", "tertiary-fixed-dim": "#ffb875",
+            "on-tertiary-fixed": "#2d1600", "primary-fixed": "#62fae3", "surface-container-high": "#e9e8e7",
+            "outline-variant": "#bacac5", "on-background": "#1a1c1c", "outline": "#6b7a76",
+            "primary-container": "#2dd4bf", "on-secondary-fixed": "#101c2e", "on-tertiary": "#ffffff",
+            "on-error-container": "#93000a", "on-secondary": "#ffffff", "on-primary-container": "#00574d",
+            "surface": "#faf9f8", "error-container": "#ffdad6", "background": "#faf9f8",
+            "surface-variant": "#e3e2e1", "tertiary-container": "#ffac5a", "surface-container": "#eeeeed",
+            "on-primary": "#ffffff", "surface-container-lowest": "#ffffff", "navy-brand": "#0F1B2D"
+          },
+          "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+          "spacing": { "unit": "8px", "stack-md": "16px", "margin-mobile": "16px", "stack-sm": "8px", "stack-lg": "32px", "gutter": "24px", "container-max-width": "1200px", "margin-desktop": "40px" },
+          "fontFamily": { "body-lg": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "label-md": ["Inter"], "body-sm": ["Inter"], "headline-sm": ["Inter"], "headline-lg-mobile": ["Inter"] },
+          "fontSize": {
+            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["12px", { "lineHeight": "1", "fontWeight": "500" }],
+            "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base { body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeInUp 0.35s ease-out forwards; }
+    .fade-in-d1 { animation-delay: 0.05s; opacity: 0; }
+    .fade-in-d2 { animation-delay: 0.1s; opacity: 0; }
+    .fade-in-d3 { animation-delay: 0.15s; opacity: 0; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .shimmer { background: linear-gradient(90deg, transparent 25%, rgba(45,212,191,0.08) 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+<body class="bg-background font-body-md text-on-surface">
+
+  <!-- Top Bar -->
+  <header class="fixed top-0 w-full z-50 bg-navy-brand pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.1)]">
+    <div class="h-16 px-margin-mobile flex items-center justify-between">
+      <div class="flex items-center gap-unit">
+        <div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center">
+          <span class="text-on-primary-container font-bold text-sm">C</span>
+        </div>
+        <span class="font-headline-sm text-on-primary">ClearDoc</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="showView('history')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10 transition-colors">
+          <span class="material-symbols-outlined">history</span>
+        </button>
+        <button onclick="showView('settings')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10 transition-colors">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative w-full pt-16 min-h-screen bg-navy-brand">
+
+    <!-- ═══════ EXPLAIN VIEW ═══════ -->
+    <div id="view-explain" class="view px-margin-mobile py-stack-lg max-w-lg mx-auto">
+      <!-- Welcome -->
+      <div class="text-center mb-stack-lg fade-in">
+        <h1 class="font-headline-md text-on-primary mb-2">Hi, <span id="userName">User</span> 👋</h1>
+        <p class="font-body-sm text-on-primary/60">Paste a document and get a plain-English explanation.</p>
+      </div>
+
+      <!-- Input Card -->
+      <div class="bg-surface-container-lowest rounded-2xl p-stack-lg shadow-2xl mb-stack-md fade-in fade-in-d1">
+        <textarea id="docInput" class="w-full min-h-[160px] p-4 rounded-xl bg-surface-container-low font-body-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all resize-none" placeholder="Paste a medical bill, legal notice, government form, or any document text here..."></textarea>
+
+        <div class="flex items-center gap-2 mt-3">
+          <select id="langSelect" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+          </select>
+          <button onclick="explainDocument()" id="explainBtn" class="h-10 px-5 rounded-lg bg-primary-container text-on-primary-container font-label-md flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-all active:scale-[0.97] shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+            <span id="explainBtnText">Explain</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="hidden bg-surface-container-lowest/10 rounded-2xl p-stack-lg text-center fade-in">
+        <div class="w-10 h-10 mx-auto mb-3 border-[3px] border-primary-container/30 border-t-primary-container rounded-full" style="animation: spin 0.8s linear infinite"></div>
+        <p class="font-body-sm text-on-primary/70">Understanding your document...</p>
+        <p class="font-body-sm text-on-primary/40 text-xs mt-1" id="loadingSubtext">Analyzing with AI</p>
+      </div>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+      <!-- ═══ Screen 2 Result ═══ -->
+      <div id="resultArea" class="hidden">
+        <!-- Deadline Banner -->
+        <div id="deadlineBanner" class="bg-error-container text-on-error-container px-4 py-4 flex items-start gap-3 shadow-sm mb-stack-md rounded-xl fade-in">
+          <span class="material-symbols-outlined shrink-0 mt-0.5 text-error">warning</span>
+          <p class="font-body-md font-medium" id="deadlineText"></p>
+        </div>
+
+        <!-- What This Means -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] relative overflow-hidden group mb-stack-md fade-in fade-in-d1">
+          <div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-primary">lightbulb</span>
+            <h2 class="font-headline-sm text-on-surface">What this means</h2>
+          </div>
+          <p class="font-body-lg text-on-surface-variant leading-relaxed" id="meaningText"></p>
+        </section>
+
+        <!-- Key Points -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] mb-stack-md fade-in fade-in-d2">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined text-secondary">fact_check</span>
+            <h2 class="font-headline-sm text-on-surface">Key Points</h2>
+          </div>
+          <ul class="flex flex-col" id="keyPointsList"></ul>
+        </section>
+
+        <!-- What You Should Do -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(15,27,45,0.05)] mb-stack-md fade-in fade-in-d3">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">task_alt</span>
+              <h2 class="font-headline-sm text-on-surface">What you should do</h2>
+            </div>
+            <span class="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded-md" id="stepsCount"></span>
+          </div>
+          <div class="flex flex-col gap-3" id="checklist"></div>
+        </section>
+      </div>
+
+      <!-- Follow-up Box -->
+      <div id="followupBox" class="hidden mt-3 bg-surface-container-lowest rounded-xl p-4 shadow-lg fade-in">
+        <div class="flex gap-2">
+          <input id="followupInput" type="text" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="Ask a question about this document..." onkeydown="if(event.key==='Enter')sendFollowup()"/>
+          <button onclick="sendFollowup()" class="h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-md hover:bg-primary-fixed-dim transition-colors">Send</button>
+        </div>
+        <div id="followupAnswer" class="hidden mt-3 bg-green-50 border border-green-200 rounded-lg p-3 font-body-sm text-green-800 leading-relaxed"></div>
+      </div>
+
+      <!-- Fixed Bottom Bar -->
+      <div id="bottomBar" class="hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-md px-margin-mobile py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] z-40">
+        <div class="max-w-lg mx-auto flex gap-3">
+          <button onclick="saveDocument()" class="flex-1 h-12 flex items-center justify-center rounded-lg border-2 border-on-surface text-on-surface font-label-md transition-colors active:bg-surface-container">
+            Save to History
+          </button>
+          <button onclick="explainAnother()" class="flex-1 h-12 flex items-center justify-center rounded-lg bg-primary-container text-on-surface font-label-md transition-transform active:scale-[0.98] shadow-sm">
+            Explain Another
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Samples -->
+      <div class="mt-stack-md fade-in fade-in-d3">
+        <p class="font-label-sm text-on-primary/40 uppercase tracking-wider mb-2">Quick Samples</p>
+        <div class="flex gap-2 overflow-x-auto pb-2">
+          <button onclick="loadSample('medical')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">🏥 Medical Bill</button>
+          <button onclick="loadSample('legal')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">⚖️ Legal Notice</button>
+          <button onclick="loadSample('govt')" class="shrink-0 px-3 py-2 rounded-lg bg-white/10 text-on-primary/80 font-body-sm text-xs hover:bg-white/20 transition-colors">🏛️ Govt Form</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ HISTORY VIEW ═══════ -->
+    <div id="view-history" class="view hidden px-margin-mobile py-stack-lg max-w-lg mx-auto">
+      <div class="flex items-center gap-3 mb-stack-lg fade-in">
+        <button onclick="showView('explain')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h2 class="font-headline-md text-on-primary">History</h2>
+      </div>
+      <div id="historyList" class="space-y-3 fade-in fade-in-d1">
+        <p class="text-on-primary/40 text-center py-8 font-body-sm">Loading...</p>
+      </div>
+    </div>
+
+    <!-- ═══════ SETTINGS VIEW ═══════ -->
+    <div id="view-settings" class="view hidden px-margin-mobile py-stack-lg max-w-lg mx-auto">
+      <div class="flex items-center gap-3 mb-stack-lg fade-in">
+        <button onclick="showView('explain')" class="w-10 h-10 flex items-center justify-center text-on-primary/70 hover:text-on-primary rounded-lg hover:bg-white/10">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h2 class="font-headline-md text-on-primary">Settings</h2>
+      </div>
+
+      <div class="space-y-4 fade-in fade-in-d1">
+        <!-- Profile -->
+        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
+          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Profile</h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-primary/60">person</span>
+              <div>
+                <p class="font-body-sm text-on-primary" id="settingsName">—</p>
+                <p class="font-body-sm text-on-primary/50 text-xs" id="settingsEmail">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language -->
+        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
+          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Language</h3>
+          <select id="settingsLang" onchange="saveSettings()" class="w-full h-10 px-3 rounded-lg bg-surface-container-low font-body-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="ar">العربية</option>
+          </select>
+        </div>
+
+        <!-- Backend Status -->
+        <div class="bg-surface-container-lowest/10 rounded-xl p-4">
+          <h3 class="font-label-sm text-on-primary/50 uppercase tracking-wider mb-3">Backend Status</h3>
+          <div class="flex items-center gap-2">
+            <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-400 pulse-dot"></span>
+            <span id="statusText" class="font-body-sm text-on-primary/70">Checking...</span>
+          </div>
+        </div>
+
+        <!-- Sign Out -->
+        <button onclick="signOut()" class="w-full h-12 rounded-xl bg-red-500/20 border border-red-400/30 text-red-300 font-label-md flex items-center justify-center gap-2 hover:bg-red-500/30 transition-colors mt-4">
+          <span class="material-symbols-outlined text-[18px]">logout</span> Sign Out
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── State ────────────────────────────────────────────────
+    let currentUser = null;
+    let currentDocId = null;
+    let currentResult = null;
+
+    const SAMPLES = {
+      medical: `VALLEY MEDICAL CENTER
+Account Statement
+
+Patient: Jane Doe
+Account #: 8847-2901
+Date of Service: March 15, 2025
+
+CHARGES:
+  Office Visit (Level 3)          $285.00
+  Blood Work (CBC Panel)          $142.00
+  X-Ray (Chest, 2 views)         $310.00
+  Prescription (Amoxicillin)       $28.50
+
+TOTAL CHARGES:                    $765.50
+INSURANCE PAID (Blue Cross):     -$520.00
+YOUR BALANCE DUE:                 $245.50
+
+PAYMENT DUE: April 15, 2025
+
+Late payments may result in a $25.00 fee and could be 
+sent to collections after 90 days. If you are unable 
+to pay in full, please contact our billing department 
+at (555) 234-5678 to discuss payment plan options.
+
+Financial assistance is available for qualifying patients. 
+Please ask at the front desk for an application.`,
+
+      legal: `NOTICE OF LEASE VIOLATION
+From: Oakwood Property Management
+To: Tenant, Unit 4B
+Date: March 20, 2025
+
+Dear Tenant,
+
+Our records indicate that your rent payment for March 2025 
+was not received by the due date of March 1, 2025.
+
+Per Section 4.2 of your lease agreement, rent is due on the 
+1st of each month. A late fee of $75.00 has been applied, 
+bringing your total amount due to $1,325.00.
+
+If payment is not received within 5 days (by March 25, 2025), 
+we will be required to initiate formal eviction proceedings 
+under California Civil Code Section 1161.
+
+This is your FIRST written notice. Two additional notices 
+will be issued before any legal action is taken.`,
+
+      govt: `STATE OF CALIFORNIA — DEPARTMENT OF MOTOR VEHICLES
+NOTICE OF DRIVER LICENSE SUSPENSION
+
+RE: License Holder — John Smith
+License #: D1234567
+Notice Date: March 10, 2025
+
+Dear Mr. Smith,
+
+This notice informs you that your California driver license 
+will be SUSPENDED effective April 10, 2025, for the 
+following reason:
+
+  Reason: Failure to maintain financial responsibility 
+  (SR-22) as required by California Vehicle Code §16020
+
+Your license will remain suspended until you:
+  1. File an SR-22 certificate with the DMV
+  2. Pay the reinstatement fee of $125.00
+  3. Maintain continuous SR-22 coverage for 3 years`
+    };
+
+    // ── Init ─────────────────────────────────────────────────
+    function init() {
+      const raw = localStorage.getItem("cleardoc_user");
+      if (!raw) { window.location.href = "/"; return; }
+
+      currentUser = JSON.parse(raw);
+      document.getElementById("userName").textContent = localStorage.getItem("cleardoc_name") || "User";
+      document.getElementById("settingsName").textContent = localStorage.getItem("cleardoc_name") || "—";
+      document.getElementById("settingsEmail").textContent = localStorage.getItem("cleardoc_email") || "—";
+
+      const lang = localStorage.getItem("cleardoc_lang") || "en";
+      document.getElementById("langSelect").value = lang;
+      document.getElementById("settingsLang").value = lang;
+
+      checkHealth();
+
+      // Handle hash navigation (e.g. from result.html back to #history)
+      if (window.location.hash === "#history") showView("history");
+    }
+
+    // ── Views ────────────────────────────────────────────────
+    function showView(name) {
+      document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+      const el = document.getElementById("view-" + name);
+      if (el) { el.classList.remove("hidden"); }
+      // Hide result area and bottom bar when switching views
+      if (name !== "explain") {
+        document.getElementById("resultArea").classList.add("hidden");
+        document.getElementById("bottomBar").classList.add("hidden");
+        document.getElementById("followupBox").classList.add("hidden");
+        document.getElementById("followupAnswer").classList.add("hidden");
+      }
+      if (name === "history") loadHistory();
+    }
+
+    // ── Explain ──────────────────────────────────────────────
+    async function explainDocument() {
+      const text = document.getElementById("docInput").value.trim();
+      if (!text) return;
+
+      const lang = document.getElementById("langSelect").value;
+      localStorage.setItem("cleardoc_lang", lang);
+
+      document.getElementById("loadingState").classList.remove("hidden");
+      document.getElementById("resultArea").classList.add("hidden");
+      document.getElementById("bottomBar").classList.add("hidden");
+      document.getElementById("explainBtn").disabled = true;
+
+      try {
+        const res = await fetch("/api/explain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, language: lang, user_id: currentUser.device_id })
+        });
+        const data = await res.json();
+
+        if (data.error) { alert(data.error); return; }
+
+        currentResult = data;
+        currentDocId = data.document_id;
+        renderResult(data);
+      } catch (err) {
+        alert("Error connecting to server. Please try again.");
+        document.getElementById("loadingState").classList.add("hidden");
+      } finally {
+        document.getElementById("loadingState").classList.add("hidden");
+        document.getElementById("explainBtn").disabled = false;
+      }
+    }
+
+    function renderResult(data) {
+      // Deadline banner
+      if (data.urgency_flag && data.urgency_message) {
+        document.getElementById("deadlineBanner").classList.remove("hidden");
+        document.getElementById("deadlineText").textContent = data.urgency_message;
+      } else if (data.deadline) {
+        document.getElementById("deadlineBanner").classList.remove("hidden");
+        document.getElementById("deadlineText").textContent = `Action required by ${data.deadline} — don't miss this deadline.`;
+      } else {
+        document.getElementById("deadlineBanner").classList.add("hidden");
+      }
+
+      // What this means
+      document.getElementById("meaningText").textContent = data.meaning || "";
+
+      // Key Points
+      const kpList = document.getElementById("keyPointsList");
+      kpList.innerHTML = (data.key_points || []).map(kp =>
+        `<li class="flex items-start gap-3 py-3 border-b border-surface-container-high last:border-0 last:pb-0">
+          <div class="w-2 h-2 rounded-full bg-primary-container mt-2 shrink-0"></div>
+          <div>
+            <span class="font-label-md text-on-surface-variant block mb-1 uppercase tracking-wider text-xs">${esc(kp.label)}</span>
+            <span class="font-body-md text-on-surface">${esc(kp.value)}</span>
+          </div>
+        </li>`
+      ).join("");
+
+      // Steps checklist
+      const steps = data.steps || [];
+      document.getElementById("stepsCount").textContent = steps.length + " Steps";
+      const cl = document.getElementById("checklist");
+      cl.innerHTML = steps.map((step, i) =>
+        `<label class="flex items-start gap-4 p-4 rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer group">
+          <div class="relative flex items-center justify-center w-6 h-6 mt-0.5 rounded border-2 border-outline-variant group-hover:border-primary transition-all">
+            <input class="absolute opacity-0 w-full h-full cursor-pointer" onchange="toggleCheck(this)" type="checkbox"/>
+            <span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 transition-opacity">check</span>
+          </div>
+          <div class="flex-1">
+            <span class="font-label-md text-on-surface block mb-1">${esc(step.title)}</span>
+            <span class="font-body-sm text-on-surface-variant block">${esc(step.description)}</span>
+          </div>
+        </label>`
+      ).join("");
+
+      // Show result area and bottom bar
+      document.getElementById("resultArea").classList.remove("hidden");
+      document.getElementById("bottomBar").classList.remove("hidden");
+      document.getElementById("followupBox").classList.add("hidden");
+      document.getElementById("followupAnswer").classList.add("hidden");
+
+      setTimeout(() => document.getElementById("deadlineBanner").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+
+    function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+    // ── Checklist Toggle with Particle Burst ─────────────────
+    function toggleCheck(checkbox) {
+      const icon = checkbox.nextElementSibling;
+      const textContainer = checkbox.closest('label').querySelector('.flex-1');
+      const title = textContainer.querySelector('.font-label-md');
+      const desc = textContainer.querySelector('.font-body-sm');
+
+      if (checkbox.checked) {
+        icon.classList.remove('opacity-0');
+        icon.parentElement.classList.add('bg-primary', 'border-primary');
+        icon.parentElement.classList.remove('border-outline-variant', 'group-hover:border-primary');
+        title.classList.add('line-through', 'text-on-surface-variant');
+        desc.classList.add('opacity-50');
+      } else {
+        icon.classList.add('opacity-0');
+        icon.parentElement.classList.remove('bg-primary', 'border-primary');
+        icon.parentElement.classList.add('border-outline-variant', 'group-hover:border-primary');
+        title.classList.remove('line-through', 'text-on-surface-variant');
+        desc.classList.remove('opacity-50');
+      }
+
+      if (checkbox.checked) {
+        const rect = checkbox.parentElement.getBoundingClientRect();
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    }
+
+    function createBurst(x, y) {
+      for (let i = 0; i < 5; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'absolute w-2 h-2 bg-primary rounded-full pointer-events-none z-50';
+        document.body.appendChild(particle);
+
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 2 + Math.random() * 2;
+        const tx = Math.cos(angle) * velocity * 15;
+        const ty = Math.sin(angle) * velocity * 15;
+
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+
+        particle.animate([
+          { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+          { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+        ], {
+          duration: 400 + Math.random() * 200,
+          easing: 'cubic-bezier(0, .9, .57, 1)'
+        }).onfinish = () => particle.remove();
+      }
+    }
+
+    // ── Explain Another ──────────────────────────────────────
+    function explainAnother() {
+      document.getElementById("resultArea").classList.add("hidden");
+      document.getElementById("bottomBar").classList.add("hidden");
+      document.getElementById("followupBox").classList.add("hidden");
+      document.getElementById("followupAnswer").classList.add("hidden");
+      document.getElementById("docInput").value = "";
+      document.getElementById("docInput").focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // ── Follow-up ────────────────────────────────────────────
+    function toggleFollowup() {
+      const box = document.getElementById("followupBox");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) document.getElementById("followupInput").focus();
+    }
+
+    async function sendFollowup() {
+      const input = document.getElementById("followupInput");
+      const q = input.value.trim();
+      if (!q) return;
+
+      const answerEl = document.getElementById("followupAnswer");
+      answerEl.classList.remove("hidden");
+      answerEl.textContent = "Thinking...";
+      answerEl.className = "mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3 font-body-sm text-blue-800 leading-relaxed";
+
+      try {
+        const res = await fetch("/api/followup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ document_id: currentDocId, question: q, language: document.getElementById("langSelect").value })
+        });
+        const data = await res.json();
+        answerEl.textContent = data.answer;
+        answerEl.className = "mt-3 bg-green-50 border border-green-200 rounded-lg p-3 font-body-sm text-green-800 leading-relaxed";
+      } catch (err) {
+        answerEl.textContent = "Could not get answer. Try again.";
+        answerEl.className = "mt-3 bg-red-50 border border-red-200 rounded-lg p-3 font-body-sm text-red-800 leading-relaxed";
+      }
+
+      input.value = "";
+    }
+
+    // ── Save ─────────────────────────────────────────────────
+    async function saveDocument() {
+      if (!currentDocId) return;
+      try {
+        await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ document_id: currentDocId })
+        });
+        const btn = event.target.closest("button");
+        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span> Saved';
+        btn.classList.add("bg-green-500/20", "text-green-300");
+        setTimeout(() => {
+          btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">bookmark_add</span> Save';
+          btn.classList.remove("bg-green-500/20", "text-green-300");
+        }, 2000);
+      } catch (err) {}
+    }
+
+    // ── History ──────────────────────────────────────────────
+    async function loadHistory() {
+      const list = document.getElementById("historyList");
+      try {
+        const res = await fetch(`/api/history/${currentUser.device_id}?limit=20`);
+        const items = await res.json();
+
+        if (items.length === 0) {
+          list.innerHTML = '<p class="text-on-primary/40 text-center py-12 font-body-sm">No saved documents yet.<br/>Explain a document and tap Save.</p>';
+          return;
+        }
+
+        list.innerHTML = items.map(d => `
+          <a href="/result.html?id=${d.id}" class="block bg-surface-container-lowest/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-medium text-primary-container uppercase">${(d.doc_type || 'other').replace(/_/g, ' ')}</span>
+              ${d.urgency_flag ? '<span class="text-xs">⚠️</span>' : ''}
+            </div>
+            <p class="font-body-sm text-on-primary/80 line-clamp-2">${esc(d.summary || '')}</p>
+            <p class="text-xs text-on-primary/40 mt-1">${d.created_at || ''}</p>
+          </a>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = '<p class="text-red-300 text-center py-8 font-body-sm">Could not load history.</p>';
+      }
+    }
+
+    async function viewDocument(docId) {
+      try {
+        const res = await fetch(`/api/document/${docId}`);
+        const data = await res.json();
+        currentDocId = docId;
+        currentResult = data;
+        document.getElementById("docInput").value = data.original_text || "";
+        showView("explain");
+        renderResult(data);
+      } catch (err) { console.error(err); }
+    }
+
+    // ── Samples ──────────────────────────────────────────────
+    function loadSample(type) {
+      document.getElementById("docInput").value = SAMPLES[type] || "";
+      document.getElementById("docInput").focus();
+    }
+
+    // ── Settings ─────────────────────────────────────────────
+    function saveSettings() {
+      localStorage.setItem("cleardoc_lang", document.getElementById("settingsLang").value);
+      document.getElementById("langSelect").value = document.getElementById("settingsLang").value;
+    }
+
+    function signOut() {
+      if (!confirm("Sign out? You can sign in again with the same email.")) return;
+      localStorage.removeItem("cleardoc_user");
+      localStorage.removeItem("cleardoc_name");
+      localStorage.removeItem("cleardoc_email");
+      window.location.href = "/";
+    }
+
+    // ── Health ───────────────────────────────────────────────
+    async function checkHealth() {
+      try {
+        const res = await fetch("/api/health");
+        const data = await res.json();
+        document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-green-400 pulse-dot";
+        document.getElementById("statusText").textContent = "Connected" + (data.services?.anthropic === "demo-mode" ? " (Demo Mode — add ANTHROPIC_API_KEY for real AI)" : "");
+      } catch (err) {
+        document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-red-400";
+        document.getElementById("statusText").textContent = "Offline";
+      }
+    }
+
+    // ── Start ────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

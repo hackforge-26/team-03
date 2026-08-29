@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "ClearDoc — Entiende Cualquier Documento",
+    "description": "The name of the extension in Spanish"
+  },
+  "extensionDescription": {
+    "message": "Selecciona cualquier texto de un documento y obtén una explicación instantánea en lenguaje simple. Ayuda a entender facturas médicas, avisos legales, formularios gubernamentales y más.",
+    "description": "The description of the extension in Spanish"
+  },
+  "contextMenuExplain": {
+    "message": "📘 Explicar con ClearDoc",
+    "description": "Right-click context menu label in Spanish"
+  },
+  "contextMenuCompare": {
+    "message": "🔍 Comparar con ClearDoc",
+    "description": "Right-click context menu label for comparison in Spanish"
+  }
+}

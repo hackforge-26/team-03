@@ -1,0 +1,74 @@
+import json
+import hashlib
+from typing import Optional, Any
+import aioredis
+from app.config import settings
+import structlog
+
+logger = structlog.get_logger()
+
+redis_client: Optional[aioredis.Redis] = None
+
+
+async def init_redis():
+    global redis_client
+    redis_client = await aioredis.from_url(
+        settings.redis_url,
+        encoding="utf-8",
+        decode_responses=True,
+        max_connections=50,
+    )
+    logger.info("redis_connected")
+
+
+async def close_redis():
+    if redis_client:
+        await redis_client.close()
+
+
+def make_document_cache_key(text: str) -> str:
+    normalized = text.strip().lower()
+    hash_val = hashlib.sha256(normalized.encode()).hexdigest()
+    return f"doc_result:{hash_val}"
+
+
+def make_history_cache_key(user_id: str) -> str:
+    return f"history:{user_id}"
+
+
+def make_result_cache_key(document_id: str) -> str:
+    return f"result:{document_id}"
+
+
+async def cache_get(key: str) -> Optional[Any]:
+    try:
+        value = await redis_client.get(key)
+        if value:
+            return json.loads(value)
+        return None
+    except Exception as e:
+        logger.warning("cache_get_failed", key=key, error=str(e))
+        return None
+
+
+async def cache_set(key: str, value: Any, ttl_seconds: int = 3600):
+    try:
+        await redis_client.setex(key, ttl_seconds, json.dumps(value))
+    except Exception as e:
+        logger.warning("cache_set_failed", key=key, error=str(e))
+
+
+async def cache_delete(key: str):
+    try:
+        await redis_client.delete(key)
+    except Exception as e:
+        logger.warning("cache_delete_failed", key=key, error=str(e))
+
+
+async def cache_delete_pattern(pattern: str):
+    try:
+        keys = await redis_client.keys(pattern)
+        if keys:
+            await redis_client.delete(*keys)
+    except Exception as e:
+        logger.warning("cache_pattern_delete_failed", error=str(e))

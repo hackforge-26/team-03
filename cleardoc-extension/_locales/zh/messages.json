@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "ClearDoc — 理解任何文件",
+    "description": "The name of the extension in Chinese"
+  },
+  "extensionDescription": {
+    "message": "选择任何文件文本，立即获得简明易懂的解释。帮助理解医疗账单、法律通知、政府表格等。",
+    "description": "The description of the extension in Chinese"
+  },
+  "contextMenuExplain": {
+    "message": "📘 用 ClearDoc 解释",
+    "description": "Right-click context menu label in Chinese"
+  },
+  "contextMenuCompare": {
+    "message": "🔍 用 ClearDoc 比较",
+    "description": "Right-click context menu label for comparison in Chinese"
+  }
+}

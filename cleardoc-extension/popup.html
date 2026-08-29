@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=380" />
+  <title>ClearDoc</title>
+  <link rel="stylesheet" href="styles/popup.css" />
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="popup-logo">
+        <span class="logo-icon">📘</span>
+        <div>
+          <h1 class="logo-text">ClearDoc</h1>
+          <p class="logo-tagline">Understand any document</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="popup-tabs">
+      <button class="tab active" data-tab="explain">Explain</button>
+      <button class="tab" data-tab="history">History</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- Explain Tab -->
+    <div class="tab-content active" id="tab-explain">
+      <div class="input-group">
+        <label for="doc-text">Paste document text:</label>
+        <textarea
+          id="doc-text"
+          placeholder="Paste a medical bill, legal notice, government form, or any document text here..."
+          rows="6"
+        ></textarea>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label for="doc-language">Language:</label>
+          <select id="doc-language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+            <option value="pt">Português</option>
+            <option value="tl">Tagalog</option>
+            <option value="hi">हिन्दी</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btn-explain">
+        📘 Explain This Document
+      </button>
+
+      <button class="btn btn-secondary btn-full" id="btn-extract-page">
+        📄 Extract Text from This Page
+      </button>
+
+      <!-- Loading -->
+      <div class="loading" id="loading" style="display: none">
+        <div class="spinner"></div>
+        <p>Understanding your document...</p>
+      </div>
+
+      <!-- Result -->
+      <div class="result" id="result" style="display: none">
+        <div class="result-summary" id="result-summary"></div>
+
+        <div class="result-section">
+          <h3>📋 Key Points</h3>
+          <ul id="result-keypoints"></ul>
+        </div>
+
+        <div class="result-section">
+          <h3>✅ What To Do Next</h3>
+          <ol id="result-nextsteps"></ol>
+        </div>
+
+        <div class="result-urgency" id="result-urgency" style="display: none">
+          ⚠️ <span id="result-urgency-msg"></span>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-secondary" id="btn-save">💾 Save</button>
+          <button class="btn btn-primary" id="btn-followup">💬 Ask Follow-up</button>
+        </div>
+
+        <!-- Follow-up -->
+        <div class="followup-box" id="followup-box" style="display: none">
+          <input type="text" id="followup-input" placeholder="Ask a question..." />
+          <button class="btn btn-primary" id="btn-followup-send">Send</button>
+        </div>
+        <div class="followup-answer" id="followup-answer" style="display: none"></div>
+      </div>
+
+      <!-- Error -->
+      <div class="error" id="error" style="display: none">
+        <p id="error-msg"></p>
+        <button class="btn btn-secondary" id="btn-retry">Try Again</button>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div class="tab-content" id="tab-history">
+      <div class="history-list" id="history-list">
+        <p class="history-empty">No saved documents yet.</p>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="tab-settings">
+      <div class="input-group">
+        <label for="setting-api-url">Backend API URL:</label>
+        <input type="url" id="setting-api-url" placeholder="http://localhost:8000" />
+      </div>
+
+      <div class="input-group">
+        <label for="setting-language">Default Language:</label>
+        <select id="setting-language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="zh">中文</option>
+          <option value="vi">Tiếng Việt</option>
+          <option value="ko">한국어</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+
+      <div class="settings-info">
+        <p><strong>Your User ID:</strong></p>
+        <code id="setting-user-id">Loading...</code>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btn-save-settings">
+        Save Settings
+      </button>
+
+      <button class="btn btn-danger btn-full" id="btn-check-health">
+        🔍 Check Backend Connection
+      </button>
+
+      <div class="health-status" id="health-status" style="display: none"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="popup-footer">
+      <span>ClearDoc v1.0.0</span>
+      <a href="#" id="link-options">⚙️ Advanced Settings</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

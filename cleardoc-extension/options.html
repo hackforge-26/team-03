@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClearDoc Settings</title>
+  <link rel="stylesheet" href="styles/options.css" />
+</head>
+<body>
+  <div class="options-container">
+    <div class="options-header">
+      <span class="logo-icon">📘</span>
+      <h1>ClearDoc Settings</h1>
+    </div>
+
+    <div class="options-section">
+      <h2>Backend Configuration</h2>
+      <p class="section-desc">Connect to your ClearDoc backend server.</p>
+
+      <div class="form-group">
+        <label for="api-url">API Base URL</label>
+        <input
+          type="url"
+          id="api-url"
+          placeholder="https://your-cleardoc-backend.com"
+        />
+        <span class="form-hint">
+          The URL of your ClearDoc FastAPI backend (no trailing slash)
+        </span>
+      </div>
+
+      <button class="btn btn-primary" id="btn-test-connection">
+        🔍 Test Connection
+      </button>
+      <div id="connection-result" class="connection-result" style="display: none"></div>
+    </div>
+
+    <div class="options-section">
+      <h2>Language</h2>
+      <p class="section-desc">Choose the default language for document explanations.</p>
+
+      <div class="form-group">
+        <label for="default-language">Default Language</label>
+        <select id="default-language">
+          <option value="en">English</option>
+          <option value="es">Español (Spanish)</option>
+          <option value="zh">中文 (Chinese)</option>
+          <option value="vi">Tiếng Việt (Vietnamese)</option>
+          <option value="ko">한국어 (Korean)</option>
+          <option value="ar">العربية (Arabic)</option>
+          <option value="fr">Français (French)</option>
+          <option value="pt">Português (Portuguese)</option>
+          <option value="tl">Tagalog</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="de">Deutsch (German)</option>
+          <option value="ja">日本語 (Japanese)</option>
+          <option value="ru">Русский (Russian)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="options-section">
+      <h2>Behavior</h2>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="show-floating-btn" checked />
+        <label for="show-floating-btn">
+          Show floating "Explain" button when text is selected
+        </label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="auto-detect-lang" checked />
+        <label for="auto-detect-lang">
+          Auto-detect document language
+        </label>
+      </div>
+    </div>
+
+    <div class="options-section">
+      <h2>Your User ID</h2>
+      <p class="section-desc">
+        This unique ID tracks your document history. It is stored locally and
+        never shared.
+      </p>
+      <code id="user-id-display">Loading...</code>
+      <button class="btn btn-secondary" id="btn-regenerate-id">
+        🔄 Generate New ID
+      </button>
+    </div>
+
+    <div class="options-section">
+      <h2>Data</h2>
+      <button class="btn btn-danger" id="btn-clear-history">
+        🗑️ Clear All History
+      </button>
+      <button class="btn btn-secondary" id="btn-export-data">
+        📥 Export My Data
+      </button>
+    </div>
+
+    <div class="options-footer">
+      <button class="btn btn-primary" id="btn-save">Save All Settings</button>
+      <span id="save-status"></span>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

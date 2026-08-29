@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "ClearDoc — Understand Any Document",
+    "description": "The name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Select any document text and get an instant plain-English explanation. Helps you understand medical bills, legal notices, government forms, and more.",
+    "description": "The description of the extension"
+  },
+  "contextMenuExplain": {
+    "message": "📘 Explain with ClearDoc",
+    "description": "Right-click context menu label"
+  },
+  "contextMenuCompare": {
+    "message": "🔍 Compare with ClearDoc",
+    "description": "Right-click context menu label for comparison"
+  }
+}
