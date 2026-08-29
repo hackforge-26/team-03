@@ -309,7 +309,7 @@ app.get("/api/document/:docId", (req, res) => {
   const docRes = db.exec("SELECT * FROM documents WHERE id = ?", [req.params.docId]);
   if (docRes.length === 0 || docRes[0].values.length === 0) return res.status(404).json({ error: "Not found" });
   const r = docRes[0].values[0];
-  res.json({ id: r[0], meaning: r[7], key_points: JSON.parse(r[8] || "[]"), steps: JSON.parse(r[9] || "[]"), deadline: r[10], urgency_flag: !!r[11], urgency_message: r[12], doc_type: r[5], language: r[6], original_text: r[2], created_at: r[14] });
+  res.json({ id: r[0], meaning: r[7], key_points: JSON.parse(r[8] || "[]"), steps: JSON.parse(r[9] || "[]"), deadline: r[10], urgency_flag: !!r[11], urgency_message: r[12], doc_type: r[4], language: r[5], original_text: r[2], created_at: r[14] });
 });
 
 // Save
